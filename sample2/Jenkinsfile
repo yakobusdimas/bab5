@@ -3,23 +3,37 @@ pipeline {
      stages {
           stage("Compile") {
                steps {
-                    sh "./gradlew compileJava"
+                    dir('sample2') {
+                         sh "./gradlew compileJava"
+                    }
                }
           }
           stage("Unit test") {
                steps {
-                    sh "./gradlew test"
+                    dir('sample2') {
+                         sh "./gradlew test"
+                    }
                }
           }
           stage("Package") {
                steps {
-                    sh "./gradlew build"
+                    dir('sample2') {
+                         sh "./gradlew build"
+                    }
                }
           }
-
           stage("Docker build") {
                steps {
-                    sh "docker build -t ydima169/calculator ."
+                    dir('sample2') {
+                         sh "docker build -t ydima169/calculator ."
+                    }
+               }
+          }
+          stage("Docker login") {
+               steps {
+                    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'docker-hub-credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                         sh "docker login --username $USERNAME --password $PASSWORD"
+                    }
                }
           }
           stage("Docker push") {
